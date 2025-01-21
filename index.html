@@ -23,7 +23,7 @@
             formData.append('image', document.getElementById('imageInput').files[0]);
 
             // Replace with your hosted API URL
-            const apiUrl = 'http://192.168.1.28:9898/predict';
+            const apiUrl = 'https://flask-object-detetion-using-yolov3.onrender.com/predict';
 
             try {
                 const response = await fetch(apiUrl, {
