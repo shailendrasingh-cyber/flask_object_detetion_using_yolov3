@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection</title>
+</head>
+<body>
+    <h1>Upload an image for object detection</h1>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" id="imageInput" required>
+        <input type="submit" value="Upload">
+    </form>
+
+    <h2>Detection Results</h2>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('image', document.getElementById('imageInput').files[0]);
+
+            // Replace with your hosted API URL
+            const apiUrl = 'http://192.168.1.28:9898/predict';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Log the API response for debugging
+                console.log("Response from API:", data);
+
+                if (response.ok) {
+                    // Display image and results
+                    let detectionList = '';
+                    data.detections.forEach(detection => {
+                        detectionList += `
+                            <li>${detection.label} - ${detection.confidence.toFixed(2)} (BBox: ${detection.bbox.join(', ')})</li>
+                        `;
+                    });
+
+                    document.getElementById('results').innerHTML = `
+                        <h3>Detected Image:</h3>
+                        <img src="${data.image_path}" alt="Detected Image" />
+                        <h4>Detections:</h4>
+                        <ul>
+                            ${detectionList}
+                        </ul>
+                    `;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error("Request failed", error);
+                alert('Error during request');
+            }
+        });
+    </script>
+</body>
+</html>
